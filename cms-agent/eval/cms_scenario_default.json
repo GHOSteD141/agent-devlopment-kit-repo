@@ -1,0 +1,37 @@
+{
+  "scenario": {
+    "description": "Default scenario for the CMS agent.",
+    "steps": [
+      {
+        "action": "create_content",
+        "parameters": {
+          "title": "Sample Article",
+          "body": "This is a sample article for testing the CMS agent.",
+          "tags": ["sample", "article", "cms"]
+        }
+      },
+      {
+        "action": "update_content",
+        "parameters": {
+          "content_id": "1",
+          "updates": {
+            "title": "Updated Sample Article",
+            "body": "This article has been updated for testing purposes."
+          }
+        }
+      },
+      {
+        "action": "delete_content",
+        "parameters": {
+          "content_id": "1"
+        }
+      },
+      {
+        "action": "retrieve_content",
+        "parameters": {
+          "content_id": "1"
+        }
+      }
+    ]
+  }
+}
