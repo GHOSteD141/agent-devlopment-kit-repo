@@ -50,6 +50,13 @@ cms_conversational_agent = Agent(
     tools=tools,
 )
 
+# Fix: Provide a minimal tool_context with a .state attribute (use a simple class)
+class SimpleToolContext:
+    def __init__(self):
+        self.state = {}
+
+cms_agent_logic = CMSAgent(SimpleToolContext())
+
 # Instead of using DummyInvocationContext, pass only the user input string to run_live.
 # This matches the ADK 1.2.1 pattern where the framework manages context.
 
