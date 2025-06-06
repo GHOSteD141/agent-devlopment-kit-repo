@@ -1,4 +1,16 @@
-def create_content(title: str, body: str, tool_context: ToolContext):
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+from google.adk.tools import ToolContext
+
+def _get_next_id(tool_context: ToolContext) -> str:
+    if "_next_content_id" not in tool_context.state:
+        tool_context.state["_next_content_id"] = 1
+    next_id = str(tool_context.state["_next_content_id"])
+    tool_context.state["_next_content_id"] += 1
+    return next_id
+
+
+def create_content(title: str, body: str, tool_context: ToolContext, tags: Optional[List[str]] = None):
     """
     Create new content.
 
@@ -6,41 +18,47 @@ def create_content(title: str, body: str, tool_context: ToolContext):
         title: The title of the content.
         body: The body of the content.
         tool_context: The ADK tool context.
+        tags: Optional; A list of tags associated with the content.
 
     Returns:
         A status message with the created content details.
     """
+    if "content" not in tool_context.state:
+        tool_context.state["content"] = []
+    if tags is None:
+        tags = []
     content = {
+        "id": _get_next_id(tool_context),
         "title": title,
         "body": body,
+        "tags": tags,
         "created_at": str(datetime.now())
     }
     tool_context.state["content"].append(content)
     return {"status": "Content created", "content": content}
 
 
-def update_content(content_id: int, title: str, body: str, tool_context: ToolContext):
+def update_content(content_id: str, updates: Dict[str, Any], tool_context: ToolContext):
     """
     Update existing content.
 
     Args:
         content_id: The ID of the content to update.
-        title: The new title of the content.
-        body: The new body of the content.
+        updates: A dictionary with the fields to update.
         tool_context: The ADK tool context.
 
     Returns:
         A status message indicating the result of the update.
     """
     content_list = tool_context.state.get("content", [])
-    if 0 <= content_id < len(content_list):
-        content_list[content_id]["title"] = title
-        content_list[content_id]["body"] = body
-        return {"status": "Content updated", "content": content_list[content_id]}
+    for item in content_list:
+        if item["id"] == content_id:
+            item.update(updates)
+            return {"status": "Content updated", "content": item}
     return {"status": "Content not found"}
 
 
-def delete_content(content_id: int, tool_context: ToolContext):
+def delete_content(content_id: str, tool_context: ToolContext):
     """
     Delete existing content.
 
@@ -52,9 +70,10 @@ def delete_content(content_id: int, tool_context: ToolContext):
         A status message indicating the result of the deletion.
     """
     content_list = tool_context.state.get("content", [])
-    if 0 <= content_id < len(content_list):
-        deleted_content = content_list.pop(content_id)
-        return {"status": "Content deleted", "content": deleted_content}
+    for i, item in enumerate(content_list):
+        if item["id"] == content_id:
+            deleted_content = content_list.pop(i)
+            return {"status": "Content deleted", "content": deleted_content}
     return {"status": "Content not found"}
 
 

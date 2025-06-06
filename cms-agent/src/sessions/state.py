@@ -1,25 +1,25 @@
-class State:
+class State(dict):
     def __init__(self):
-        self.data = {}
-    
+        super().__init__()
+
     def set(self, key: str, value: any):
-        self.data[key] = value
-    
+        self[key] = value
+
     def get(self, key: str) -> any:
-        return self.data.get(key, None)
-    
+        return super().get(key, None)
+
     def remove(self, key: str):
-        if key in self.data:
-            del self.data[key]
-    
+        if key in self:
+            del self[key]
+
     def clear(self):
-        self.data.clear()
-    
+        super().clear()
+
     def exists(self, key: str) -> bool:
-        return key in self.data
+        return key in self
 
     def update(self, updates: dict):
-        self.data.update(updates)
+        super().update(updates)
 
     def __repr__(self):
-        return f'State({self.data})'
+        return f'State({dict(self)})'
