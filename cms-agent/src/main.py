@@ -1,10 +1,15 @@
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool, google_search
+import sys
+import os
+
+# Ensure the src directory is in sys.path for module resolution
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from agents.cms_agent import CMSAgent
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
-import os
 from typing import List
 
 # Wrap CMS logic as tools
@@ -59,14 +64,13 @@ farewell_agent = Agent(
     tools=[]
 )
 
-# --- Sub-agent: Google Search Agent ---
-# Use a supported model for function calling (Gemini 1.5 Pro or Gemini 1.0 Pro)
-search_agent = Agent(
-    model="gemini-1.5-pro",  # Use a model that supports function calling/tools
-    name="search_agent",
-    instruction="You are a search agent. Use the google_search tool to answer user questions that require up-to-date information from the web.",
-    description="Handles web search queries using Google Search.",
-    tools=[google_search]
+# --- Sub-agent: General Chat Agent (for unrelated topics) ---
+general_chat_agent = Agent(
+    model="gemini-2.0-flash",
+    name="general_chat_agent",
+    instruction="You are a helpful general-purpose assistant. Answer user questions or chat about topics not related to CMS management, greetings, or farewells.",
+    description="Handles general conversation and unrelated topics.",
+    tools=[]
 )
 
 # --- Root CMS Agent (Orchestrator) ---
@@ -78,13 +82,18 @@ cms_conversational_agent = Agent(
         "You help users create, update, delete, and retrieve content items using your CMS tools. "
         "If the user greets you, delegate to the greeting_agent. "
         "If the user says goodbye, delegate to the farewell_agent. "
-        "If the user asks a general question or for information not in the CMS, delegate to the search_agent. "
+        "If the user asks about something unrelated to CMS, greetings, or farewells, delegate to the general_chat_agent. "
         "Otherwise, handle the request yourself using your CMS tools. "
         "Be friendly and helpful, and ask for clarification if the user's request is ambiguous."
     ),
-    description="A conversational agent for managing CMS content, greetings, farewells, and web search.",
-    tools=cms_tools,
-    sub_agents=[greeting_agent, farewell_agent, search_agent]
+    description="A conversational agent for managing CMS content, greetings, farewells, and general chat.",
+    tools=[
+        FunctionTool(create_content_tool),
+        FunctionTool(update_content_tool),
+        FunctionTool(delete_content_tool),
+        FunctionTool(retrieve_content_tool),
+    ],
+    sub_agents=[greeting_agent, farewell_agent, general_chat_agent]
 )
 
 def main():
