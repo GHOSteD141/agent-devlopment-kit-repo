@@ -1,13 +1,11 @@
 from google.adk.agents import Agent
-from google.adk.tools import FunctionTool
+from google.adk.tools import FunctionTool, google_search
 from agents.cms_agent import CMSAgent
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
 import os
 from typing import List
-
-# Remove DummySession, DummyInvocationContext, and ToolContext usage for agent running
 
 # Wrap CMS logic as tools
 def create_content_tool(title: str, body: str, tags: List[str]) -> dict:
@@ -25,8 +23,15 @@ def delete_content_tool(content_id: str):
 def retrieve_content_tool(content_id: str):
     return cms_agent_logic.get_content(content_id)
 
-# Define tools for the agent
-tools = [
+# Fix: Provide a minimal tool_context with a .state attribute (use a simple class)
+class SimpleToolContext:
+    def __init__(self):
+        self.state = {}
+
+cms_agent_logic = CMSAgent(SimpleToolContext())
+
+# CMS tools
+cms_tools = [
     FunctionTool(create_content_tool),
     FunctionTool(update_content_tool),
     FunctionTool(delete_content_tool),
@@ -36,29 +41,51 @@ tools = [
 # Set your Gemini API key (replace with your actual key)
 os.environ["GOOGLE_API_KEY"] = "AIzaSyAx7LRR8jDqUDb8nplrRujv8SL0zhNdh6c"
 
-# Use Gemini 2.0 Flash model as requested
+# --- Sub-agent: Greeting Agent ---
+greeting_agent = Agent(
+    model="gemini-2.0-flash",
+    name="greeting_agent",
+    instruction="You are a greeting agent. Greet the user in a friendly way. Do not perform any other tasks.",
+    description="Handles greetings.",
+    tools=[]
+)
+
+# --- Sub-agent: Farewell Agent ---
+farewell_agent = Agent(
+    model="gemini-2.0-flash",
+    name="farewell_agent",
+    instruction="You are a farewell agent. Say goodbye to the user in a polite way. Do not perform any other tasks.",
+    description="Handles farewells.",
+    tools=[]
+)
+
+# --- Sub-agent: Google Search Agent ---
+# Use a supported model for function calling (Gemini 1.5 Pro or Gemini 1.0 Pro)
+search_agent = Agent(
+    model="gemini-1.5-pro",  # Use a model that supports function calling/tools
+    name="search_agent",
+    instruction="You are a search agent. Use the google_search tool to answer user questions that require up-to-date information from the web.",
+    description="Handles web search queries using Google Search.",
+    tools=[google_search]
+)
+
+# --- Root CMS Agent (Orchestrator) ---
 cms_conversational_agent = Agent(
     model="gemini-2.0-flash",
     name="cms_conversational_agent",
     instruction=(
         "You are a conversational CMS agent. "
-        "You help users create, update, delete, and retrieve content items. "
-        "Use your tools to manage content as requested by the user. "
+        "You help users create, update, delete, and retrieve content items using your CMS tools. "
+        "If the user greets you, delegate to the greeting_agent. "
+        "If the user says goodbye, delegate to the farewell_agent. "
+        "If the user asks a general question or for information not in the CMS, delegate to the search_agent. "
+        "Otherwise, handle the request yourself using your CMS tools. "
         "Be friendly and helpful, and ask for clarification if the user's request is ambiguous."
     ),
-    description="A conversational agent for managing CMS content.",
-    tools=tools,
+    description="A conversational agent for managing CMS content, greetings, farewells, and web search.",
+    tools=cms_tools,
+    sub_agents=[greeting_agent, farewell_agent, search_agent]
 )
-
-# Fix: Provide a minimal tool_context with a .state attribute (use a simple class)
-class SimpleToolContext:
-    def __init__(self):
-        self.state = {}
-
-cms_agent_logic = CMSAgent(SimpleToolContext())
-
-# Instead of using DummyInvocationContext, pass only the user input string to run_live.
-# This matches the ADK 1.2.1 pattern where the framework manages context.
 
 def main():
     print("Welcome to the Conversational CMS Agent! Type 'exit' to quit.")
@@ -101,8 +128,13 @@ def main():
             ):
                 if event.is_final_response():
                     if event.content and event.content.parts:
-                        print("Agent:", event.content.parts[0].text)
+                        text_parts = [p.text for p in event.content.parts if hasattr(p, "text") and p.text]
+                        if text_parts:
+                            print("Agent:", " ".join(text_parts))
+                        else:
+                            print("Agent: [No text response]")
         asyncio.run(print_response())
 
 if __name__ == "__main__":
     main()
+    #python "c:\Users\SHREYAJIT BEURA\OneDrive\Documents\GitHub\agent-devlopment-kit-repo\cms-agent\src\main.py"  (this is the command to run the script)
