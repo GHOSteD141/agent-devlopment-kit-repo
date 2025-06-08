@@ -73,27 +73,121 @@ general_chat_agent = Agent(
     tools=[]
 )
 
+# Admin credentials (for demo, use env vars or a secure store in production)
+ADMIN_ID = "admin"
+ADMIN_PASSWORD = "admin123"
+
+# --- Sub-agent: Verification Agent ---
+def verify_admin_tool(user_id: str, password: str) -> dict:
+    """Verifies if the provided user_id and password are correct for admin access.
+    Username check is strict and must match 'admin' exactly (case-insensitive, trimmed)."""
+    if user_id.strip().lower() == ADMIN_ID and password == ADMIN_PASSWORD:
+        return {"is_admin": True, "message": "Admin verified. You have full access."}
+    else:
+        return {"is_admin": False, "message": "You are not an admin. Only content search/retrieval is allowed."}
+
+verification_agent = Agent(
+    model="gemini-2.0-flash",
+    name="verification_agent",
+    instruction=(
+        "You are a verification agent. When the user requests to create or update content, "
+        "ask for their admin ID and password. Use the verify_admin_tool to check credentials. "
+        "If verified, allow the operation. If not, deny creation/update and only allow content search or retrieval."
+    ),
+    description="Verifies if the user is admin before allowing content creation or update.",
+    tools=[FunctionTool(verify_admin_tool)]
+)
+
+# --- Sub-agent: Content Link Agent ---
+def get_content_link_tool(content_id: str) -> dict:
+    """Returns the website link for the given content ID."""
+    # Replace with your actual URL pattern if needed
+    base_url = "https://yourwebsite.com/content/"
+    return {"link": f"{base_url}{content_id}"}
+
+content_link_agent = Agent(
+    model="gemini-2.0-flash",
+    name="content_link_agent",
+    instruction="You are a content link agent. When asked for a link to content, use the get_content_link_tool to provide the direct website link for the given content ID.",
+    description="Provides website links for content items.",
+    tools=[FunctionTool(get_content_link_tool)]
+)
+
+# Add session state keys for admin profile and mode
+def set_admin_session_state(tool_context, user_id, is_admin):
+    tool_context.state["admin_user_id"] = user_id
+    tool_context.state["is_admin"] = is_admin
+    tool_context.state["admin_mode"] = is_admin
+
+def switch_mode_tool(mode: str, password: str = "", user_id: str = "", tool_context=None) -> dict:
+    """
+    Switches between admin and user mode.
+    - If switching to admin, password and user_id are required and checked strictly.
+    - If switching to user, admin profile is remembered, and can switch back to admin with password.
+    """
+    if tool_context is None:
+        return {"success": False, "message": "No session context."}
+    if mode == "admin":
+        if tool_context.state.get("is_admin") and tool_context.state.get("admin_user_id"):
+            # Already admin, just switch mode
+            tool_context.state["admin_mode"] = True
+            return {"success": True, "message": "Switched to admin mode."}
+        # Require password and user_id for admin
+        if user_id.strip().lower() == ADMIN_ID and password == ADMIN_PASSWORD:
+            tool_context.state["is_admin"] = True
+            tool_context.state["admin_user_id"] = ADMIN_ID
+            tool_context.state["admin_mode"] = True
+            return {"success": True, "message": "Admin mode enabled."}
+        else:
+            return {"success": False, "message": "Incorrect admin username or password. Cannot switch to admin mode."}
+    elif mode == "user":
+        if tool_context.state.get("is_admin"):
+            tool_context.state["admin_mode"] = False
+            return {"success": True, "message": "Switched to user mode. Admin profile remembered for this session."}
+        else:
+            return {"success": False, "message": "You are not an admin. Cannot switch mode."}
+    else:
+        return {"success": False, "message": "Unknown mode."}
+
+# Add switch_mode_tool to a new agent
+switch_mode_agent = Agent(
+    model="gemini-2.0-flash",
+    name="switch_mode_agent",
+    instruction="You are a mode switch agent. Use the switch_mode_tool to switch between admin and user mode. Only allow switching to admin if the correct password is provided. If already admin, allow switching to user mode and remember the admin profile for the session.",
+    description="Handles switching between admin and user modes.",
+    tools=[FunctionTool(switch_mode_tool)]
+)
+
 # --- Root CMS Agent (Orchestrator) ---
 cms_conversational_agent = Agent(
     model="gemini-2.0-flash",
     name="cms_conversational_agent",
     instruction=(
         "You are a conversational CMS agent. "
-        "You help users create, update, delete, and retrieve content items using your CMS tools. "
+        "If the user wants to create or update content, delegate to the verification_agent to check if they are admin. "
+        "If the user wants to switch between admin and user mode, delegate to the switch_mode_agent. "
+        "If the user asks for a content link, delegate to the content_link_agent. "
         "If the user greets you, delegate to the greeting_agent. "
         "If the user says goodbye, delegate to the farewell_agent. "
         "If the user asks about something unrelated to CMS, greetings, or farewells, delegate to the general_chat_agent. "
         "Otherwise, handle the request yourself using your CMS tools. "
         "Be friendly and helpful, and ask for clarification if the user's request is ambiguous."
     ),
-    description="A conversational agent for managing CMS content, greetings, farewells, and general chat.",
+    description="A conversational agent for managing CMS content, greetings, farewells, verification, content links, mode switching, and general chat.",
     tools=[
         FunctionTool(create_content_tool),
         FunctionTool(update_content_tool),
         FunctionTool(delete_content_tool),
         FunctionTool(retrieve_content_tool),
     ],
-    sub_agents=[greeting_agent, farewell_agent, general_chat_agent]
+    sub_agents=[
+        greeting_agent,
+        farewell_agent,
+        verification_agent,
+        content_link_agent,
+        switch_mode_agent,
+        general_chat_agent
+    ]
 )
 
 def main():
