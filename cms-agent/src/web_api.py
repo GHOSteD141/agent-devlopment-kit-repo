@@ -61,5 +61,13 @@ async def chat_endpoint(req: ChatRequest):
                 response_text = " ".join(text_parts) if text_parts else "[No text response]"
     return {"response": response_text}
 
-# This is good! The FastAPI server is running and will reload automatically when you make changes.
-# You can now POST to http://localhost:8000/chat from your HTML/JS frontend.
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "CMS Agent API is running."}
+
+# The FastAPI server is running locally at:
+#   http://127.0.0.1:8000
+# or
+#   http://localhost:8000
+
+# Your HTML/JS frontend should POST to http://localhost:8000/chat

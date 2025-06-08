@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Conversational CMS Agent Demo</title>
+  <link rel="stylesheet" href="chat.css" />
+</head>
+<body>
+  <div id="app" role="main" aria-label="Conversational CMS Agent Demo">
+    <header>Conversational CMS Agent</header>
+    <main id="chat" aria-live="polite" aria-relevant="additions"></main>
+    <form id="input-form" aria-label="User input form" autocomplete="off" novalidate>
+      <input type="text" id="user-input" name="user-input" placeholder="Type your message here..." aria-label="User message input" required />
+      <button type="submit" aria-label="Send message">Send</button>
+    </form>
+    <footer>Powered by Google ADK & Gemini Models</footer>
+  </div>
+<script>
+  const chat = document.getElementById('chat');
+  const inputForm = document.getElementById('input-form');
+  const userInput = document.getElementById('user-input');
+
+  function appendMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.className = 'message ' + sender;
+    msg.textContent = text;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  inputForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    userInput.value = '';
+    userInput.disabled = true;
+    inputForm.querySelector('button').disabled = true;
+
+    fetch('http://localhost:8000/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    })
+    .then(res => res.json())
+    .then(data => {
+      appendMessage(data.response, 'agent');
+      userInput.disabled = false;
+      inputForm.querySelector('button').disabled = false;
+      userInput.focus();
+    })
+    .catch(() => {
+      appendMessage("Sorry, there was an error contacting the agent.", 'agent');
+      userInput.disabled = false;
+      inputForm.querySelector('button').disabled = false;
+      userInput.focus();
+    });
+  });
+
+  window.onload = () => userInput.focus();
+</script>
+</body>
+</html>
