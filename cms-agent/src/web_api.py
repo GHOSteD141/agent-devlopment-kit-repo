@@ -4,8 +4,9 @@ from pydantic import BaseModel
 import sys
 import os
 from fastapi import UploadFile, File
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
 
 # Ensure the src directory is in sys.path for module resolution
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -67,6 +68,15 @@ async def chat_endpoint(req: ChatRequest):
 @app.get("/")
 async def root():
     return {"status": "ok", "message": "CMS Agent API is running."}
+
+# Serve the static directory (adjust path if needed)
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..")), name="static")
+
+@app.get("/chat")
+async def chat_page():
+    # Adjust the path if chat.html is not in the parent directory of src
+    html_path = os.path.join(os.path.dirname(__file__), "..", "chat.html")
+    return FileResponse(html_path)
 
 # The FastAPI server is running locally at:
 #   http://127.0.0.1:8000
