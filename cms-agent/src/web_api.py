@@ -1,24 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import asyncio
 import sys
 import os
+from fastapi import UploadFile, File
+from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
 
 # Ensure the src directory is in sys.path for module resolution
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from main import cms_conversational_agent, InMemorySessionService, Runner, types
-
-app = FastAPI()
-
-# Allow CORS for all origins (for local HTML/JS testing)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Session setup (reuse for all users for demo)
 session_service = InMemorySessionService()
@@ -33,9 +25,20 @@ async def ensure_session():
         session_id=SESSION_ID
     )
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     await ensure_session()
+    yield
+
+app = FastAPI(lifespan=lifespan)
+
+# Allow CORS for all origins (for local HTML/JS testing)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 runner = Runner(
     agent=cms_conversational_agent,

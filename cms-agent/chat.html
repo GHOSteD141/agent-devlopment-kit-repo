@@ -32,6 +32,7 @@
   inputForm.addEventListener('submit', function(e) {
     e.preventDefault();
     const text = userInput.value.trim();
+
     if (!text) return;
 
     appendMessage(text, 'user');
@@ -39,6 +40,10 @@
     userInput.disabled = true;
     inputForm.querySelector('button').disabled = true;
 
+    sendChat(text);
+  });
+
+  function sendChat(text) {
     fetch('http://localhost:8000/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -57,7 +62,7 @@
       inputForm.querySelector('button').disabled = false;
       userInput.focus();
     });
-  });
+  }
 
   window.onload = () => userInput.focus();
 </script>
