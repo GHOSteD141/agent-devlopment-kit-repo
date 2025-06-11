@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Conversational CMS Agent Demo</title>
-  <link rel="stylesheet" href="chat.css" />
+  <link rel="stylesheet" href="/static/chat.css" />
 </head>
 <body>
   <div id="app" role="main" aria-label="Conversational CMS Agent Demo">
@@ -44,7 +44,7 @@
   });
 
   function sendChat(text) {
-    fetch('http://localhost:8000/chat', {
+    fetch('/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: text })

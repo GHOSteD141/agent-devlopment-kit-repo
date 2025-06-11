@@ -7,6 +7,8 @@ from fastapi import UploadFile, File
 from fastapi.responses import JSONResponse, FileResponse
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 # Ensure the src directory is in sys.path for module resolution
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -70,12 +72,13 @@ async def root():
     return {"status": "ok", "message": "CMS Agent API is running."}
 
 # Serve the static directory (adjust path if needed)
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..")), name="static")
+static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/chat")
 async def chat_page():
     # Adjust the path if chat.html is not in the parent directory of src
-    html_path = os.path.join(os.path.dirname(__file__), "..", "chat.html")
+    html_path = os.path.join(static_dir, "chat.html")
     return FileResponse(html_path)
 
 # The FastAPI server is running locally at:
