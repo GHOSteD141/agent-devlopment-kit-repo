@@ -3,63 +3,232 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>My E-Commerce Shop</title>
+  <title>ShopHub - Premium E-Commerce</title>
   <link rel="stylesheet" href="/static/chat.css" />
-  <style>
-    /* ...existing code for chat.css will style the chat... */
-    body { font-family: 'Inter', sans-serif; margin: 0; background: #f7f8fa; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
-    .products { display: flex; flex-wrap: wrap; gap: 2rem; }
-    .product-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      padding: 1rem;
-      width: 220px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+  <link rel="stylesheet" href="/static/shop.css" />
+  <script>
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.textContent = msg;
+      toast.style.position = 'fixed';
+      toast.style.bottom = '80px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.background = '#2563eb';
+      toast.style.color = '#fff';
+      toast.style.padding = '0.7rem 1.5rem';
+      toast.style.borderRadius = '8px';
+      toast.style.fontWeight = '600';
+      toast.style.zIndex = 9999;
+      toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.13)';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 2200);
     }
-    .product-card img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; }
-    .product-card h3 { margin: 0.5rem 0 0.2rem 0; font-size: 1.1rem; }
-    .product-card p { margin: 0.2rem 0 0.5rem 0; color: #6b7280; font-size: 0.95rem; }
-    .product-card button {
-      background: #2563eb; color: #fff; border: none; border-radius: 8px;
-      padding: 0.5rem 1.2rem; font-weight: 600; cursor: pointer;
-      transition: background 0.2s;
+    function addToCart(name) {
+      showToast(name + " has been added to your cart.");
     }
-    .product-card button:hover { background: #1d4ed8; }
-    .chat-section { margin-top: 3rem; }
-  </style>
+    function openChat() {
+      const chatFrame = document.getElementById('chat-iframe');
+      if (chatFrame) {
+        chatFrame.scrollIntoView({ behavior: 'smooth' });
+        showToast("Scroll down to chat with our agent!");
+      }
+    }
+    function openCMS() {
+      showToast("CMS Agent feature coming soon!");
+    }
+  </script>
 </head>
 <body>
+  <div class="header">
+    ShopHub <span style="font-size:0.9rem;font-weight:400;color:#6b7280;">Premium Store</span>
+    <button class="fixed-btn cms" onclick="openCMS()" title="CMS Agent">⚙️</button>
+    <button class="fixed-btn chat" onclick="openChat()" title="Chat Support">💬</button>
+  </div>
+  <div class="hero">
+    <h2>Discover Amazing Products</h2>
+    <p>Curated collection of premium items for your lifestyle. Quality guaranteed, satisfaction promised.</p>
+    <button onclick="window.scrollTo({top: document.querySelector('.products').offsetTop, behavior: 'smooth'});">Shop Now</button>
+  </div>
   <div class="container">
-    <h1>Welcome to My E-Commerce Shop</h1>
     <div class="products">
       <div class="product-card">
-        <img src="https://via.placeholder.com/120" alt="Product 1" />
-        <h3>Product 1</h3>
-        <p>Awesome item for your needs.</p>
-        <button>Add to Cart</button>
+        <span class="category">Electronics</span>
+        <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop" alt="Premium Wireless Headphones" />
+        <h3>Premium Wireless Headphones</h3>
+        <div class="price">$199.99</div>
+        <p>High-fidelity sound, noise cancellation, and all-day comfort.</p>
+        <button onclick="addToCart('Premium Wireless Headphones')">Add to Cart</button>
       </div>
       <div class="product-card">
-        <img src="https://via.placeholder.com/120" alt="Product 2" />
-        <h3>Product 2</h3>
-        <p>Another great product.</p>
-        <button>Add to Cart</button>
+        <span class="category">Furniture</span>
+        <img src="https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop" alt="Modern Living Room Set" />
+        <h3>Modern Living Room Set</h3>
+        <div class="price">$1299.99</div>
+        <p>Elegant design and comfort for your home.</p>
+        <button onclick="addToCart('Modern Living Room Set')">Add to Cart</button>
       </div>
       <div class="product-card">
-        <img src="https://via.placeholder.com/120" alt="Product 3" />
-        <h3>Product 3</h3>
-        <p>Best seller in our shop.</p>
-        <button>Add to Cart</button>
+        <span class="category">Pet Supplies</span>
+        <img src="https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=300&fit=crop" alt="Cozy Pet Blanket" />
+        <h3>Cozy Pet Blanket</h3>
+        <div class="price">$29.99</div>
+        <p>Soft, warm, and perfect for your furry friends.</p>
+        <button onclick="addToCart('Cozy Pet Blanket')">Add to Cart</button>
       </div>
-      <!-- ...add more products as needed... -->
+      <div class="product-card">
+        <span class="category">Outdoor</span>
+        <img src="https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=400&h=300&fit=crop" alt="Mountain Adventure Gear" />
+        <h3>Mountain Adventure Gear</h3>
+        <div class="price">$399.99</div>
+        <p>Everything you need for your next adventure.</p>
+        <button onclick="addToCart('Mountain Adventure Gear')">Add to Cart</button>
+      </div>
+      <div class="product-card">
+        <span class="category">Pet Supplies</span>
+        <img src="https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=400&h=300&fit=crop" alt="Premium Cat Toy Collection" />
+        <h3>Premium Cat Toy Collection</h3>
+        <div class="price">$49.99</div>
+        <p>Keep your cat entertained for hours.</p>
+        <button onclick="addToCart('Premium Cat Toy Collection')">Add to Cart</button>
+      </div>
+      <div class="product-card">
+        <span class="category">Food & Beverages</span>
+        <img src="https://images.unsplash.com/photo-1498936178812-4b2e558d2937?w=400&h=300&fit=crop" alt="Natural Honey & Bee Products" />
+        <h3>Natural Honey & Bee Products</h3>
+        <div class="price">$24.99</div>
+        <p>Pure, natural, and delicious honey products.</p>
+        <button onclick="addToCart('Natural Honey & Bee Products')">Add to Cart</button>
+      </div>
     </div>
-    <div class="chat-section">
-      <h2>Need Help? Chat with our CMS Agent!</h2>
-      <iframe src="/chat" style="width:100%;height:500px;border:none;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.07);"></iframe>
+    <div class="chat-section" id="chat-iframe">
+      <h2 style="text-align:center;margin-top:3rem;">Need Help? Chat with our CMS Agent!</h2>
+      <iframe src="/chat" style="width:100%;height:500px;border:none;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-top:1.5rem;"></iframe>
     </div>
+  </div>
+  <div class="footer">
+    &copy; 2024 ShopHub. All rights reserved.<br>
+    <span style="font-size:0.95rem;">Premium ecommerce experience crafted with care.</span>
+  </div>
+</body>
+</html>
+    .fixed-btn:hover {
+      background: #2563eb;
+      color: #fff;
+    }
+    .fixed-btn.cms { left: 1.5rem; }
+    .fixed-btn.chat { right: 1.5rem; }
+    .chat-section {
+      margin-top: 3rem;
+    }
+    @media (max-width: 900px) {
+      .products { flex-direction: column; align-items: center; }
+      .product-card { width: 90vw; }
+    }
+  </style>
+  <script>
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.textContent = msg;
+      toast.style.position = 'fixed';
+      toast.style.bottom = '80px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.background = '#2563eb';
+      toast.style.color = '#fff';
+      toast.style.padding = '0.7rem 1.5rem';
+      toast.style.borderRadius = '8px';
+      toast.style.fontWeight = '600';
+      toast.style.zIndex = 9999;
+      toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.13)';
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 2200);
+    }
+    function addToCart(name) {
+      showToast(name + " has been added to your cart.");
+    }
+    function openChat() {
+      const chatFrame = document.getElementById('chat-iframe');
+      if (chatFrame) {
+        chatFrame.scrollIntoView({ behavior: 'smooth' });
+        showToast("Scroll down to chat with our agent!");
+      }
+    }
+    function openCMS() {
+      showToast("CMS Agent feature coming soon!");
+    }
+  </script>
+</head>
+<body>
+  <div class="header">
+    ShopHub <span style="font-size:0.9rem;font-weight:400;color:#6b7280;">Premium Store</span>
+    <button class="fixed-btn cms" onclick="openCMS()" title="CMS Agent">⚙️</button>
+    <button class="fixed-btn chat" onclick="openChat()" title="Chat Support">💬</button>
+  </div>
+  <div class="hero">
+    <h2>Discover Amazing Products</h2>
+    <p>Curated collection of premium items for your lifestyle. Quality guaranteed, satisfaction promised.</p>
+    <button onclick="window.scrollTo({top: document.querySelector('.products').offsetTop, behavior: 'smooth'});">Shop Now</button>
+  </div>
+  <div class="container">
+    <div class="products">
+      <div class="product-card">
+        <span class="category">Electronics</span>
+        <img src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop" alt="Premium Wireless Headphones" />
+        <h3>Premium Wireless Headphones</h3>
+        <div class="price">$199.99</div>
+        <p>High-fidelity sound, noise cancellation, and all-day comfort.</p>
+        <button onclick="addToCart('Premium Wireless Headphones')">Add to Cart</button>
+      </div>
+      <div class="product-card">
+        <span class="category">Furniture</span>
+        <img src="https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop" alt="Modern Living Room Set" />
+        <h3>Modern Living Room Set</h3>
+        <div class="price">$1299.99</div>
+        <p>Elegant design and comfort for your home.</p>
+        <button onclick="addToCart('Modern Living Room Set')">Add to Cart</button>
+      </div>
+      <div class="product-card">
+        <span class="category">Pet Supplies</span>
+        <img src="https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=300&fit=crop" alt="Cozy Pet Blanket" />
+        <h3>Cozy Pet Blanket</h3>
+        <div class="price">$29.99</div>
+        <p>Soft, warm, and perfect for your furry friends.</p>
+        <button onclick="addToCart('Cozy Pet Blanket')">Add to Cart</button>
+      </div>
+      <div class="product-card">
+        <span class="category">Outdoor</span>
+        <img src="https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=400&h=300&fit=crop" alt="Mountain Adventure Gear" />
+        <h3>Mountain Adventure Gear</h3>
+        <div class="price">$399.99</div>
+        <p>Everything you need for your next adventure.</p>
+        <button onclick="addToCart('Mountain Adventure Gear')">Add to Cart</button>
+      </div>
+      <div class="product-card">
+        <span class="category">Pet Supplies</span>
+        <img src="https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=400&h=300&fit=crop" alt="Premium Cat Toy Collection" />
+        <h3>Premium Cat Toy Collection</h3>
+        <div class="price">$49.99</div>
+        <p>Keep your cat entertained for hours.</p>
+        <button onclick="addToCart('Premium Cat Toy Collection')">Add to Cart</button>
+      </div>
+      <div class="product-card">
+        <span class="category">Food & Beverages</span>
+        <img src="https://images.unsplash.com/photo-1498936178812-4b2e558d2937?w=400&h=300&fit=crop" alt="Natural Honey & Bee Products" />
+        <h3>Natural Honey & Bee Products</h3>
+        <div class="price">$24.99</div>
+        <p>Pure, natural, and delicious honey products.</p>
+        <button onclick="addToCart('Natural Honey & Bee Products')">Add to Cart</button>
+      </div>
+    </div>
+    <div class="chat-section" id="chat-iframe">
+      <h2 style="text-align:center;margin-top:3rem;">Need Help? Chat with our CMS Agent!</h2>
+      <iframe src="/chat" style="width:100%;height:500px;border:none;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-top:1.5rem;"></iframe>
+    </div>
+  </div>
+  <div class="footer">
+    &copy; 2024 ShopHub. All rights reserved.<br>
+    <span style="font-size:0.95rem;">Premium ecommerce experience crafted with care.</span>
   </div>
 </body>
 </html>

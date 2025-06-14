@@ -81,6 +81,11 @@ async def chat_page():
     html_path = os.path.join(static_dir, "chat.html")
     return FileResponse(html_path)
 
+@app.get("/shop")
+async def shop_page():
+    html_path = os.path.join(static_dir, "shop.html")
+    return FileResponse(html_path)
+
 # The FastAPI server is running locally at:
 #   http://127.0.0.1:8000
 # or
