@@ -88,9 +88,14 @@ async def shop_page():
 
 @app.get("/products")
 async def get_products():
-    # Try to get products from CMS agent's memory
-    content_list = runner.agent.tool_context.state.get('content', [])
-    # If empty, return a default product list for demo
+    # Access the CMSAgent's tool_context.state directly
+    from agents.cms_agent import CMSAgent
+    # Assuming you used cms_agent_logic = CMSAgent(SimpleToolContext()) in main.py
+    try:
+        from main import cms_agent_logic
+        content_list = cms_agent_logic.tool_context.state.get('content', [])
+    except Exception:
+        content_list = []
     if not content_list:
         content_list = [
             {
