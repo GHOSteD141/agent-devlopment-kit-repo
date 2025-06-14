@@ -86,6 +86,14 @@ async def shop_page():
     html_path = os.path.join(static_dir, "shop.html")
     return FileResponse(html_path)
 
+@app.get("/products")
+async def get_products():
+    # Assuming products are stored as content with a "category" field
+    # and using the CMS agent's tool_context.state['content']
+    content_list = runner.agent.tool_context.state.get('content', [])
+    # Optionally, filter for only product-type content if needed
+    return {"products": content_list}
+
 # The FastAPI server is running locally at:
 #   http://127.0.0.1:8000
 # or
