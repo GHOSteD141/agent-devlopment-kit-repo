@@ -88,13 +88,38 @@ content_link_agent = Agent(
     tools=[FunctionTool(get_content_link_tool)]
 )
 
+# Admin credentials (for demo, use env vars or a secure store in production)
+ADMIN_ID = "admin"
+ADMIN_PASSWORD = "admin123"
+
+# --- Sub-agent: Verification Agent ---
+def verify_admin_tool(user_id: str, password: str) -> dict:
+    """Verifies if the provided user_id and password are correct for admin access.
+    Username check is strict and must match 'admin' exactly (case-insensitive, trimmed)."""
+    if user_id.strip().lower() == ADMIN_ID and password == ADMIN_PASSWORD:
+        return {"is_admin": True, "message": "Admin verified. You have full access."}
+    else:
+        return {"is_admin": False, "message": "You are not an admin. Only content search/retrieval is allowed."}
+
+verification_agent = Agent(
+    model="gemini-2.0-flash",
+    name="verification_agent",
+    instruction=(
+        "You are a verification agent. When the user requests to create or update content, "
+        "ask for their admin ID and password. Use the verify_admin_tool to check credentials. "
+        "If verified, allow the operation. If not, deny creation/update and only allow content search or retrieval."
+    ),
+    description="Verifies if the user is admin before allowing content creation or update.",
+    tools=[FunctionTool(verify_admin_tool)]
+)
+
 # --- Root CMS Agent (Orchestrator) ---
 cms_conversational_agent = Agent(
     model="gemini-2.0-flash",
     name="cms_conversational_agent",
     instruction=(
         "You are a conversational CMS agent. "
-        "Allow all users to create, update, delete, and retrieve content without admin verification. "
+        "If the user wants to create or update content, delegate to the verification_agent to check if they are admin. "
         "If the user asks for a content link, delegate to the content_link_agent. "
         "If the user greets you, delegate to the greeting_agent. "
         "If the user says goodbye, delegate to the farewell_agent. "
@@ -102,7 +127,7 @@ cms_conversational_agent = Agent(
         "Otherwise, handle the request yourself using your CMS tools. "
         "Be friendly and helpful, and ask for clarification if the user's request is ambiguous."
     ),
-    description="A conversational agent for managing CMS content, greetings, farewells, content links, and general chat.",
+    description="A conversational agent for managing CMS content, greetings, farewells, verification, content links, and general chat.",
     tools=[
         FunctionTool(create_content_tool),
         FunctionTool(update_content_tool),
@@ -112,6 +137,7 @@ cms_conversational_agent = Agent(
     sub_agents=[
         greeting_agent,
         farewell_agent,
+        verification_agent,
         content_link_agent,
         general_chat_agent
     ]
