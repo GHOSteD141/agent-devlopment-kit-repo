@@ -88,14 +88,13 @@ async def shop_page():
 
 @app.get("/products")
 async def get_products():
-    # Access the CMSAgent's tool_context.state directly
-    from agents.cms_agent import CMSAgent
-    # Assuming you used cms_agent_logic = CMSAgent(SimpleToolContext()) in main.py
+    # Try to get products from CMS agent's memory
     try:
         from main import cms_agent_logic
         content_list = cms_agent_logic.tool_context.state.get('content', [])
     except Exception:
         content_list = []
+    # If empty, return a default product list for demo
     if not content_list:
         content_list = [
             {
@@ -148,4 +147,5 @@ async def get_products():
 # or
 #   http://localhost:8000
 
+# Your HTML/JS frontend should POST to http://localhost:8000/chat
 # Your HTML/JS frontend should POST to http://localhost:8000/chat
