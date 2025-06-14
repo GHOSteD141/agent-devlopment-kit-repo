@@ -4,7 +4,6 @@ from pydantic import BaseModel
 import sys
 import os
 from fastapi.responses import FileResponse
-from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
@@ -27,11 +26,10 @@ async def ensure_session():
         session_id=SESSION_ID
     )
 
-@asynccontextmanager
-@asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     await ensure_session()
     yield
+
 app = FastAPI(lifespan=lifespan)
 
 # Allow CORS for all origins (for local HTML/JS testing)
@@ -146,5 +144,4 @@ async def get_products():
 # or
 #   http://localhost:8000
 
-# Your HTML/JS frontend should POST to http://localhost:8000/chat
-# Your HTML/JS frontend should POST to http://localhost:8000/chat
+
