@@ -3,8 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import sys
 import os
-from fastapi import UploadFile, File
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -29,10 +28,10 @@ async def ensure_session():
     )
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+@asynccontextmanager
+async def lifespan(_: FastAPI):
     await ensure_session()
     yield
-
 app = FastAPI(lifespan=lifespan)
 
 # Allow CORS for all origins (for local HTML/JS testing)
