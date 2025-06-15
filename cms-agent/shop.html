@@ -38,41 +38,52 @@
       showToast("CMS Agent feature coming soon!");
     }
 
+    let lastProductsJSON = "";
+
     // Dynamically load products from backend
-    async function loadProducts() {
+    async function loadProducts(silent = false) {
       const grid = document.getElementById('products-grid');
-      grid.innerHTML = '<div style="padding:2rem;text-align:center;width:100%;">Loading products...</div>';
+      if (!silent) {
+        grid.innerHTML = '<div style="padding:2rem;text-align:center;width:100%;">Loading products...</div>';
+      }
       try {
         const res = await fetch('/products');
         const data = await res.json();
-        grid.innerHTML = '';
-        if (data.products && data.products.length > 0) {
-          data.products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.innerHTML = `
-              <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
-                <span class="category">${product.category || ''}</span>
-                <span class="product-id" style="color:#888;font-size:0.95rem;padding-right:0.7rem;">ID: ${product.id || ''}</span>
-              </div>
-              <img src="${product.image || 'https://via.placeholder.com/180x100?text=No+Image'}" alt="${product.title || product.name}" />
-              <h3>${product.title || product.name}</h3>
-              <div class="price">$${product.price ? Number(product.price).toFixed(2) : '0.00'}</div>
-              <p>${product.body || product.description || ''}</p>
-              <button onclick="addToCart('${product.title || product.name}')">Add to Cart</button>
-            `;
-            grid.appendChild(card);
-          });
-        } else {
-          grid.innerHTML = '<div style="padding:2rem;text-align:center;width:100%;">No products found.</div>';
+        const productsJSON = JSON.stringify(data.products || []);
+        if (productsJSON !== lastProductsJSON) {
+          lastProductsJSON = productsJSON;
+          grid.innerHTML = '';
+          if (data.products && data.products.length > 0) {
+            data.products.forEach(product => {
+              const card = document.createElement('div');
+              card.className = 'product-card';
+              card.innerHTML = `
+                <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
+                  <span class="category">${product.category || ''}</span>
+                  <span class="product-id" style="color:#888;font-size:0.95rem;padding-right:0.7rem;">ID: ${product.id || ''}</span>
+                </div>
+                <img src="${product.image || 'https://via.placeholder.com/180x100?text=No+Image'}" alt="${product.title || product.name}" />
+                <h3>${product.title || product.name}</h3>
+                <div class="price">$${product.price ? Number(product.price).toFixed(2) : '0.00'}</div>
+                <p>${product.body || product.description || ''}</p>
+                <button onclick="addToCart('${product.title || product.name}')">Add to Cart</button>
+              `;
+              grid.appendChild(card);
+            });
+          } else {
+            grid.innerHTML = '<div style="padding:2rem;text-align:center;width:100%;">No products found.</div>';
+          }
         }
+        // If products haven't changed, do nothing (no flicker)
       } catch (e) {
-        grid.innerHTML = '<div style="padding:2rem;text-align:center;width:100%;">Failed to load products.</div>';
+        if (!silent) {
+          grid.innerHTML = '<div style="padding:2rem;text-align:center;width:100%;">Failed to load products.</div>';
+        }
       }
     }
 
-    // Auto-refresh products every 10 seconds
-    setInterval(loadProducts, 10000);
+    // Auto-refresh products every 10 seconds in the background (no flicker)
+    setInterval(() => loadProducts(true), 10000);
 
     window.onload = function() {
       loadProducts();
