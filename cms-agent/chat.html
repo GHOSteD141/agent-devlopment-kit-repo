@@ -9,7 +9,12 @@
 <body>
   <div id="app" role="main" aria-label="Conversational CMS Agent Demo">
     <header>Conversational CMS Agent</header>
-    <main id="chat" aria-live="polite" aria-relevant="additions"></main>
+    <main id="chat" aria-live="polite" aria-relevant="additions">
+      <div class="message agent" style="margin-bottom:8px;">
+        👋 Welcome! I am your CMS Agent. You can create, update, delete, or retrieve products here. For admin actions, use:<br>
+        <b>Username:</b> <span style="user-select:all;">admin</span> &nbsp; <b>Password:</b> <span style="user-select:all;">admin123</span>
+      </div>
+    </main>
     <form id="input-form" aria-label="User input form" autocomplete="off" novalidate>
       <input type="text" id="user-input" name="user-input" placeholder="Type your message here..." aria-label="User message input" required />
       <button type="submit" aria-label="Send message">Send</button>

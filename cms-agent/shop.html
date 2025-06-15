@@ -51,7 +51,10 @@
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
-              <span class="category">${product.category || ''}</span>
+              <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
+                <span class="category">${product.category || ''}</span>
+                <span class="product-id" style="color:#888;font-size:0.95rem;padding-right:0.7rem;">ID: ${product.id || ''}</span>
+              </div>
               <img src="${product.image || 'https://via.placeholder.com/180x100?text=No+Image'}" alt="${product.title || product.name}" />
               <h3>${product.title || product.name}</h3>
               <div class="price">$${product.price ? Number(product.price).toFixed(2) : '0.00'}</div>
@@ -67,6 +70,9 @@
         grid.innerHTML = '<div style="padding:2rem;text-align:center;width:100%;">Failed to load products.</div>';
       }
     }
+
+    // Auto-refresh products every 10 seconds
+    setInterval(loadProducts, 10000);
 
     window.onload = function() {
       loadProducts();
@@ -105,12 +111,6 @@
   </div>
 </body>
 </html>
-  </style>
-  <script>
-    function showToast(msg) {
-      const toast = document.createElement('div');
-      toast.textContent = msg;
-      toast.style.position = 'fixed';
       toast.style.bottom = '80px';
       toast.style.left = '50%';
       toast.style.transform = 'translateX(-50%)';
@@ -176,12 +176,6 @@
     };
   </script>
 </head>
-<body>
-  <div class="header">
-    ShopHub <span style="font-size:0.9rem;font-weight:400;color:#6b7280;">Premium Store</span>
-    <button class="fixed-btn cms" onclick="openCMS()" title="CMS Agent">⚙️</button>
-    <button class="fixed-btn chat" onclick="openChat()" title="Chat Support">💬</button>
-  </div>
   <div class="container">
     <div class="products" id="products-grid">
       <!-- Products will be loaded here dynamically -->
