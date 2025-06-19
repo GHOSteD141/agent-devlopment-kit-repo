@@ -48,7 +48,7 @@ cms_tools = [
 ]
 
 # Set your Gemini API key (replace with your actual key)
-os.environ["GOOGLE_API_KEY"] = "AIzaSyAx7LRR8jDqUDb8nplrRujv8SL0zhNdh6c"
+os.environ["GOOGLE_API_KEY"] = "YOUR GEMINI_API_KEY"
 
 # --- Sub-agent: Greeting Agent ---
 greeting_agent = Agent(
@@ -197,4 +197,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    #python "c:\Users\SHREYAJIT BEURA\OneDrive\Documents\GitHub\agent-devlopment-kit-repo\cms-agent\src\main.py"  (this is the command to run the script)
+   
