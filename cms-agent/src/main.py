@@ -2,6 +2,8 @@ from google.adk.agents import Agent
 from google.adk.tools import FunctionTool, google_search
 import sys
 import os
+import time
+from datetime import datetime, timedelta
 
 # Ensure the src directory is in sys.path for module resolution
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -115,13 +117,34 @@ ADMIN_ID = "admin"
 ADMIN_PASSWORD = "admin123"
 
 # --- Sub-agent: Verification Agent ---
-def verify_admin_tool(user_id: str, password: str) -> dict:
-    """Verifies if the provided user_id and password are correct for admin access.
-    Username check is strict and must match 'admin' exactly (case-insensitive, trimmed)."""
-    if user_id.strip().lower() == ADMIN_ID and password == ADMIN_PASSWORD:
-        return {"is_admin": True, "message": "Admin verified. You have full access."}
+def verify_admin_tool(user_id: str, password: str, session_state=None) -> dict:
+    """
+    Verifies if the provided user_id and password are correct for admin access.
+    Username check is strict and must match 'admin' exactly (case-insensitive, trimmed).
+    Requires re-verification if more than 24 hours have passed since last verification.
+    """
+    now = datetime.utcnow()
+    if session_state is None:
+        session_state = {}
+
+    last_verified = session_state.get("admin_last_verified")
+    needs_verification = True
+    if last_verified:
+        try:
+            last_verified_dt = datetime.strptime(last_verified, "%Y-%m-%dT%H:%M:%S")
+            if now - last_verified_dt < timedelta(days=1):
+                needs_verification = False
+        except Exception:
+            needs_verification = True
+
+    if needs_verification:
+        if user_id.strip().lower() == ADMIN_ID and password == ADMIN_PASSWORD:
+            session_state["admin_last_verified"] = now.strftime("%Y-%m-%dT%H:%M:%S")
+            return {"is_admin": True, "message": "Admin verified. You have full access."}
+        else:
+            return {"is_admin": False, "message": "You are not an admin. Only content search/retrieval is allowed."}
     else:
-        return {"is_admin": False, "message": "You are not an admin. Only content search/retrieval is allowed."}
+        return {"is_admin": True, "message": "Admin session still valid (verified within 24 hours)."}
 
 verification_agent = Agent(
     model="gemini-2.0-flash",
@@ -129,10 +152,12 @@ verification_agent = Agent(
     instruction=(
         "You are a verification agent. When the user requests to create or update content, "
         "ask for their admin ID and password. Use the verify_admin_tool to check credentials. "
-        "If verified, allow the operation. If not, deny creation/update and only allow content search or retrieval."
+        "If verified, allow the operation. If not, deny creation/update and only allow content search or retrieval. "
+        "Require re-verification if more than 24 hours have passed since last verification."
     ),
     description="Verifies if the user is admin before allowing content creation or update.",
-    tools=[FunctionTool(verify_admin_tool)]
+    tools=[FunctionTool(lambda user_id, password: verify_admin_tool(
+        user_id, password, cms_agent_logic.tool_context.state))]
 )
 
 # --- Root CMS Agent (Orchestrator) ---
