@@ -48,7 +48,8 @@ cms_tools = [
 ]
 
 # Set your Gemini API key (replace with your actual key)
-os.environ["GOOGLE_API_KEY"] = "YOUR GEMINI_API_KEY"
+os.environ["GOOGLE_API_KEY"] = "AIzaSyDEyY-uS7_KV1eaDBjPudqRjHfyowgahMk"
+
 
 # --- Sub-agent: Greeting Agent ---
 greeting_agent = Agent(
