@@ -111,6 +111,17 @@ Follow these steps to test the CMS Agent project:
   ```
 - Judges can review or run this scenario to verify agent behavior for create, update, delete, and retrieve actions.
 
+## Google Technologies Used
+
+- **Google Agent Development Kit (ADK)**:  
+  Used for building, managing, and running conversational agents and tools.
+
+- **Google Gemini Models**:  
+  Used as the underlying language model for agent responses.
+
+- **google.genai**:  
+  Provides types and utilities for working with generative AI models.
+
 ## Additional Information
 
 - The `cms_agent.py` file contains the core logic for the CMS agent, including how it interacts with memory and tools.
