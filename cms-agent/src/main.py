@@ -13,12 +13,29 @@ from google.genai import types
 from typing import List
 from demo_products import demo_products
 
+# Utility: Generate an image URL for new content (replace with Gemini image API if available)
+def generate_image_url(title: str, body: str) -> str:
+    # Placeholder: Use a service like Unsplash or via.placeholder.com
+    # For demo, use Unsplash with the title as a search query
+    import urllib.parse
+    query = urllib.parse.quote(title or "product")
+    return f"https://source.unsplash.com/400x300/?{query}"
+
 # Wrap CMS logic as tools
 def create_content_tool(title: str, body: str, tags: List[str]) -> dict:
     # Ensure tags is always a list (ADK requires this for schema)
     if tags is None:
         tags = []
-    return cms_agent_logic.create_content(title, body, tags)
+    result = cms_agent_logic.create_content(title, body, tags)
+    # If content was created, generate and attach an image
+    if result.get("status") == "Content created" and "content" in result:
+        image_url = generate_image_url(title, body)
+        result["content"]["image"] = image_url
+        # Also update in backend state for consistency
+        for item in cms_agent_logic.tool_context.state.get("content", []):
+            if item.get("id") == result["content"].get("id"):
+                item["image"] = image_url
+    return result
 
 def update_content_tool(content_id: str, updates: dict):
     return cms_agent_logic.update_content(content_id, updates)
@@ -198,4 +215,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-   
