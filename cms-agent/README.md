@@ -20,11 +20,20 @@ cms-agent
 │   │   └── constants.py          # Constants used throughout the project
 │   ├── sessions
 │   │   └── state.py              # Manages the session state for the agent
-│   └── main.py                   # Entry point for the application
+│   ├── main.py                   # Entry point for the application (CLI)
+│   ├── web_api.py                # FastAPI backend for web integration
+│   ├── flask_api.py              # Flask backend (alternative modular API)
+│   └── demo_products.py          # Demo product data for initial state
 ├── eval
-│   └── cms_scenario_default.json  # Default scenario for testing the CMS agent
-├── requirements.txt               # Lists project dependencies
-└── README.md                      # Project documentation
+│   └── cms_scenario_default.json # Default scenario for testing the CMS agent
+├── chat.html                     # Frontend chat UI
+├── chat.css                      # Styles for chat UI
+├── shop.html                     # Frontend shop UI
+├── shop.css                      # Styles for shop UI
+├── requirements.txt              # Lists project dependencies
+├── cms_documentation.md          # Project and code documentation
+├── # Code Citations.md           # External code references and attributions
+└── README.md                     # Project documentation
 ```
 
 ## Setup Instructions
@@ -52,6 +61,55 @@ cms-agent
 - **Creating Content**: Use the CMS agent to create new content items by sending a request to the agent with the necessary parameters.
 - **Updating Content**: The agent can also handle requests to update existing content, ensuring that the latest information is stored.
 - **Deleting Content**: To remove content, send a delete request to the agent with the identifier of the content to be removed.
+
+## Testing Instructions
+
+Follow these steps to test the CMS Agent project:
+
+### 1. Command-Line Interface (CLI) Testing
+
+- Run the agent in CLI mode:
+  ```
+  python src/main.py
+  ```
+- Interact with the agent by typing messages in the terminal.
+- To exit, type `x` and press Enter.
+
+### 2. FastAPI Web API Testing
+
+- Start the FastAPI backend:
+  ```
+  uvicorn src.web_api:app --reload
+  ```
+- Open your browser and go to:
+  - [http://localhost:8000/shop](http://localhost:8000/shop) for the shop UI
+  - [http://localhost:8000/chat](http://localhost:8000/chat) for the chat UI
+- You can also test the API endpoints (e.g., `/chat`, `/products`) using tools like Postman or curl.
+
+### 3. Flask Web API Testing (Alternative)
+
+- Start the Flask backend:
+  ```
+  python src/flask_api.py
+  ```
+- The API will be available at [http://localhost:5000](http://localhost:5000).
+- Endpoints:
+  - `/chat` (POST): Send JSON `{"message": "your text"}` to chat with the agent.
+  - `/products` (GET): Retrieve the current product list.
+
+### 4. Frontend Testing
+
+- Ensure the FastAPI backend is running.
+- Open `shop.html` or `chat.html` in your browser (or access via `/shop` and `/chat` routes).
+- Interact with the CMS agent and verify that content creation, updates, and retrieval work as expected.
+
+### 5. Scenario Testing
+
+- Use the provided scenario file for automated or manual testing:
+  ```
+  eval/cms_scenario_default.json
+  ```
+- Judges can review or run this scenario to verify agent behavior for create, update, delete, and retrieve actions.
 
 ## Additional Information
 
