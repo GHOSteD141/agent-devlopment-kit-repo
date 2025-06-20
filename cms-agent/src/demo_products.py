@@ -1,11 +1,11 @@
 demo_products = [
     {
         "id": "1",
-        "title": "Premium Wireless Headphones",
+        "title": "Premium Butter Scotch Cake",
         "price": 199.99,
         "image": "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop",
         "category": "Electronics",
-        "body": "High-fidelity sound, noise cancellation, and all-day comfort."
+        "body": "Amazing cake With butter scotch filling."
     },
     {
         "id": "2",
