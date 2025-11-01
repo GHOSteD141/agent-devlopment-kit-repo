@@ -1,0 +1,20 @@
+# Web-related files
+*.html
+*.css
+*.scss
+*.sass
+*.less
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Keep only necessary files
+!README.md
+!LICENSE
