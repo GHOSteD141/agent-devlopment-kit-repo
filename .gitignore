@@ -1,20 +1,14 @@
-# Web-related files
+# Web files
 *.html
 *.css
-*.scss
-*.sass
-*.less
+*.js
+!*.config.js
 *.jpg
-*.jpeg
 *.png
 *.gif
 *.svg
-*.ico
-*.woff
-*.woff2
-*.ttf
-*.eot
 
-# Keep only necessary files
+# Keep specific files
 !README.md
-!LICENSE
+!package.json
+!.gitignore
