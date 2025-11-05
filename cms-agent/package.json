@@ -1,0 +1,12 @@
+{
+  "name": "cms-agent",
+  "version": "1.0.0",
+  "description": "BoltBite CMS Agent",
+  "main": "server.js",
+  "dependencies": {
+    "@google/generative-ai": "^0.1.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2"
+  }
+}
